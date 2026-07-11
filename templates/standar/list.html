@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Penetapan Standar{% endblock %}
+{% block content %}
+<div class="baris-judul">
+  <h1>Penetapan — Standar Mutu</h1>
+  <a class="btn" href="{{ url_for('standar_form') }}">+ Tetapkan Standar</a>
+</div>
+<p class="deskripsi">Tahap pertama siklus PPEPP: menetapkan standar mutu beserta indikator kinerja dan targetnya.</p>
+
+<div class="filter-bar">
+  <a href="{{ url_for('standar_list') }}" class="{{ 'aktif' if not kategori_aktif }}">Semua</a>
+  {% for k in kategori_list %}
+  <a href="{{ url_for('standar_list', kategori=k) }}" class="{{ 'aktif' if kategori_aktif == k }}">{{ k }}</a>
+  {% endfor %}
+</div>
+
+<div class="tabel-bungkus">
+  <table>
+    <tr><th>Kode</th><th>Nama Standar</th><th>Kategori</th><th>Indikator &amp; Target</th><th>Status</th><th></th></tr>
+    {% for s in rows %}
+    <tr>
+      <td><a href="{{ url_for('standar_detail', id=s['id']) }}">{{ s['kode'] }}</a></td>
+      <td>{{ s['nama'] }}<div class="sub">PJ: {{ s['penanggung_jawab'] or '—' }}</div></td>
+      <td>{{ s['kategori'] }}</td>
+      <td>{{ s['indikator'] }}<div class="sub">Target: {{ s['target'] }}</div></td>
+      <td><span class="badge {{ s['status']|badge }}">{{ s['status'] }}</span></td>
+      <td>
+        <a class="btn btn-kecil btn-abu" href="{{ url_for('standar_form', id=s['id']) }}">Edit</a>
+        <form class="inline" method="post" action="{{ url_for('standar_hapus', id=s['id']) }}"
+              onsubmit="return confirm('Hapus standar ini beserta seluruh riwayat siklusnya?')">
+          <button class="btn btn-kecil btn-merah">Hapus</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="6" class="kosong">Belum ada standar. Mulai siklus PPEPP dengan menetapkan standar pertama.</td></tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

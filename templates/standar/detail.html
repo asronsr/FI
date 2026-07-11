@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}{{ s['kode'] }}{% endblock %}
+{% block content %}
+<div class="baris-judul">
+  <h1>{{ s['kode'] }} — {{ s['nama'] }}</h1>
+  <div>
+    <a class="btn btn-abu" href="{{ url_for('standar_form', id=s['id']) }}">Edit</a>
+    <a class="btn btn-abu" href="{{ url_for('standar_list') }}">← Kembali</a>
+  </div>
+</div>
+
+<div class="kartu">
+  <dl class="rinci">
+    <dt>Status</dt><dd><span class="badge {{ s['status']|badge }}">{{ s['status'] }}</span>
+      {% if s['tanggal_penetapan'] %} · ditetapkan {{ s['tanggal_penetapan'] }}{% endif %}</dd>
+    <dt>Kategori</dt><dd>{{ s['kategori'] }}</dd>
+    <dt>Pernyataan Standar</dt><dd>{{ s['pernyataan'] }}</dd>
+    <dt>Indikator Kinerja</dt><dd>{{ s['indikator'] }}</dd>
+    <dt>Target</dt><dd>{{ s['target'] }}</dd>
+    <dt>Penanggung Jawab</dt><dd>{{ s['penanggung_jawab'] or '—' }}</dd>
+  </dl>
+</div>
+
+<h2>Riwayat Siklus PPEPP untuk Standar Ini</h2>
+
+<h2>📋 Pelaksanaan ({{ pelaksanaan|length }})</h2>
+<div class="tabel-bungkus">
+  <table>
+    <tr><th>Kegiatan</th><th>Unit</th><th>Periode</th><th>Capaian</th><th>Bukti</th></tr>
+    {% for p in pelaksanaan %}
+    <tr>
+      <td>{{ p['kegiatan'] }}</td><td>{{ p['unit'] }}</td><td>{{ p['periode'] }}</td>
+      <td>{{ p['capaian'] or '—' }}</td><td>{{ p['bukti'] or '—' }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="5" class="kosong">Belum ada catatan pelaksanaan.</td></tr>
+    {% endfor %}
+  </table>
+</div>
+
+<h2>🔍 Evaluasi ({{ evaluasi|length }})</h2>
+<div class="tabel-bungkus">
+  <table>
+    <tr><th>Periode</th><th>Metode</th><th>Capaian</th><th>Kesimpulan</th><th>Temuan</th></tr>
+    {% for e in evaluasi %}
+    <tr>
+      <td>{{ e['periode'] }}</td><td>{{ e['metode'] }}</td><td>{{ e['capaian'] or '—' }}</td>
+      <td><span class="badge {{ e['kesimpulan']|badge }}">{{ e['kesimpulan'] }}</span></td>
+      <td><span class="badge {{ e['jenis_temuan']|badge }}">{{ e['jenis_temuan'] }}</span>
+        {% if e['temuan'] %}<div class="sub">{{ e['temuan'] }}</div>{% endif %}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="5" class="kosong">Belum ada evaluasi.</td></tr>
+    {% endfor %}
+  </table>
+</div>
+
+<h2>🛠️ Pengendalian ({{ pengendalian|length }})</h2>
+<div class="tabel-bungkus">
+  <table>
+    <tr><th>Periode</th><th>Tindakan</th><th>Penanggung Jawab</th><th>Batas Waktu</th><th>Status</th></tr>
+    {% for p in pengendalian %}
+    <tr>
+      <td>{{ p['periode'] }}</td><td>{{ p['tindakan'] }}</td>
+      <td>{{ p['penanggung_jawab'] or '—' }}</td><td>{{ p['batas_waktu'] or '—' }}</td>
+      <td><span class="badge {{ p['status']|badge }}">{{ p['status'] }}</span></td>
+    </tr>
+    {% else %}
+    <tr><td colspan="5" class="kosong">Belum ada tindakan pengendalian.</td></tr>
+    {% endfor %}
+  </table>
+</div>
+
+<h2>📈 Peningkatan ({{ peningkatan|length }})</h2>
+<div class="tabel-bungkus">
+  <table>
+    <tr><th>Jenis</th><th>Usulan</th><th>Target Baru</th><th>Status</th></tr>
+    {% for p in peningkatan %}
+    <tr>
+      <td>{{ p['jenis'] }}</td><td>{{ p['usulan'] }}</td>
+      <td>{{ p['target_baru'] or '—' }}</td>
+      <td><span class="badge {{ p['status']|badge }}">{{ p['status'] }}</span></td>
+    </tr>
+    {% else %}
+    <tr><td colspan="4" class="kosong">Belum ada usulan peningkatan.</td></tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

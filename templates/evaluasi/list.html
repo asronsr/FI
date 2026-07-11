@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Evaluasi{% endblock %}
+{% block content %}
+<div class="baris-judul">
+  <h1>Evaluasi Pelaksanaan Standar</h1>
+  <a class="btn" href="{{ url_for('evaluasi_form') }}">+ Catat Evaluasi</a>
+</div>
+<p class="deskripsi">Tahap ketiga siklus PPEPP: menilai capaian pelaksanaan terhadap standar melalui AMI, monev, atau survei.</p>
+
+<div class="tabel-bungkus">
+  <table>
+    <tr><th>Standar</th><th>Periode</th><th>Metode</th><th>Capaian</th><th>Kesimpulan</th><th>Temuan</th><th></th></tr>
+    {% for e in rows %}
+    <tr>
+      <td><a href="{{ url_for('standar_detail', id=e['standar_id']) }}">{{ e['kode'] }}</a>
+        <div class="sub">{{ e['nama_standar'] }}</div></td>
+      <td>{{ e['periode'] }}<div class="sub">{{ e['tanggal'] or '' }}</div></td>
+      <td>{{ e['metode'] }}<div class="sub">{{ e['auditor'] or '' }}</div></td>
+      <td>{{ e['capaian'] or '—' }}</td>
+      <td><span class="badge {{ e['kesimpulan']|badge }}">{{ e['kesimpulan'] }}</span></td>
+      <td><span class="badge {{ e['jenis_temuan']|badge }}">{{ e['jenis_temuan'] }}</span>
+        {% if e['temuan'] %}<div class="sub">{{ e['temuan'] }}</div>{% endif %}</td>
+      <td>
+        <a class="btn btn-kecil btn-abu" href="{{ url_for('evaluasi_form', id=e['id']) }}">Edit</a>
+        <form class="inline" method="post" action="{{ url_for('evaluasi_hapus', id=e['id']) }}"
+              onsubmit="return confirm('Hapus evaluasi ini beserta tindakan pengendaliannya?')">
+          <button class="btn btn-kecil btn-merah">Hapus</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="7" class="kosong">Belum ada evaluasi.</td></tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

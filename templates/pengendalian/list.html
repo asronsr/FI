@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Pengendalian{% endblock %}
+{% block content %}
+<div class="baris-judul">
+  <h1>Pengendalian Pelaksanaan Standar</h1>
+  <a class="btn" href="{{ url_for('pengendalian_form') }}">+ Tambah Tindak Lanjut</a>
+</div>
+<p class="deskripsi">Tahap keempat siklus PPEPP: tindakan korektif atas temuan evaluasi agar pelaksanaan kembali sesuai standar.</p>
+
+<div class="tabel-bungkus">
+  <table>
+    <tr><th>Standar / Temuan</th><th>Akar Masalah</th><th>Tindakan Korektif</th><th>PJ</th><th>Batas Waktu</th><th>Status</th><th></th></tr>
+    {% for p in rows %}
+    <tr>
+      <td>{{ p['kode'] }} · {{ p['periode'] }}
+        <div class="sub"><span class="badge {{ p['jenis_temuan']|badge }}">{{ p['jenis_temuan'] }}</span></div></td>
+      <td>{{ p['akar_masalah'] or '—' }}</td>
+      <td>{{ p['tindakan'] }}{% if p['hasil'] %}<div class="sub">Hasil: {{ p['hasil'] }}</div>{% endif %}</td>
+      <td>{{ p['penanggung_jawab'] or '—' }}</td>
+      <td>{{ p['batas_waktu'] or '—' }}</td>
+      <td><span class="badge {{ p['status']|badge }}">{{ p['status'] }}</span></td>
+      <td>
+        <a class="btn btn-kecil btn-abu" href="{{ url_for('pengendalian_form', id=p['id']) }}">Edit</a>
+        <form class="inline" method="post" action="{{ url_for('pengendalian_hapus', id=p['id']) }}"
+              onsubmit="return confirm('Hapus tindakan pengendalian ini?')">
+          <button class="btn btn-kecil btn-merah">Hapus</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="7" class="kosong">Belum ada tindakan pengendalian.</td></tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

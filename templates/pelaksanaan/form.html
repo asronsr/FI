@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if p else 'Catat' }} Pelaksanaan{% endblock %}
+{% block content %}
+<h1>{{ 'Edit Catatan Pelaksanaan' if p else 'Catat Pelaksanaan Standar' }}</h1>
+<form class="formulir" method="post">
+  <div class="medan">
+    <label for="standar_id">Standar *</label>
+    <select id="standar_id" name="standar_id" required>
+      {% for s in standar %}
+      <option value="{{ s['id'] }}" {{ 'selected' if p and p['standar_id'] == s['id'] }}>
+        {{ s['kode'] }} — {{ s['nama'] }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="medan">
+    <label for="kegiatan">Kegiatan *</label>
+    <input id="kegiatan" name="kegiatan" required placeholder="mis. Tracer study lulusan 2026"
+           value="{{ p['kegiatan'] if p }}">
+  </div>
+  <div class="dua-kolom">
+    <div class="medan">
+      <label for="unit">Unit Pelaksana *</label>
+      <input id="unit" name="unit" required placeholder="mis. Gugus Kendali Mutu" value="{{ p['unit'] if p }}">
+    </div>
+    <div class="medan">
+      <label for="periode">Periode *</label>
+      <input id="periode" name="periode" required placeholder="mis. 2026 Ganjil" value="{{ p['periode'] if p }}">
+    </div>
+  </div>
+  <div class="dua-kolom">
+    <div class="medan">
+      <label for="tanggal">Tanggal</label>
+      <input type="date" id="tanggal" name="tanggal" value="{{ p['tanggal'] if p and p['tanggal'] }}">
+    </div>
+    <div class="medan">
+      <label for="bukti">Bukti / Dokumen</label>
+      <input id="bukti" name="bukti" placeholder="mis. Laporan kegiatan, tautan dokumen" value="{{ p['bukti'] if p }}">
+    </div>
+  </div>
+  <div class="medan">
+    <label for="capaian">Capaian</label>
+    <textarea id="capaian" name="capaian" placeholder="Hasil/capaian terhadap indikator standar">{{ p['capaian'] if p }}</textarea>
+  </div>
+  <div class="medan">
+    <label for="catatan">Catatan</label>
+    <textarea id="catatan" name="catatan">{{ p['catatan'] if p }}</textarea>
+  </div>
+  <button class="btn" type="submit">Simpan</button>
+  <a class="btn btn-abu" href="{{ url_for('pelaksanaan_list') }}">Batal</a>
+</form>
+{% endblock %}

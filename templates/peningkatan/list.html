@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Peningkatan{% endblock %}
+{% block content %}
+<div class="baris-judul">
+  <h1>Peningkatan Standar</h1>
+  <a class="btn" href="{{ url_for('peningkatan_form') }}">+ Usulkan Peningkatan</a>
+</div>
+<p class="deskripsi">Tahap kelima siklus PPEPP: meningkatkan standar secara berkelanjutan (kaizen) berdasarkan hasil evaluasi dan pengendalian.</p>
+
+<div class="tabel-bungkus">
+  <table>
+    <tr><th>Standar</th><th>Jenis</th><th>Usulan</th><th>Target Baru</th><th>Status</th><th>Tanggal</th><th></th></tr>
+    {% for p in rows %}
+    <tr>
+      <td><a href="{{ url_for('standar_detail', id=p['standar_id']) }}">{{ p['kode'] }}</a>
+        <div class="sub">{{ p['nama_standar'] }}</div></td>
+      <td>{{ p['jenis'] }}</td>
+      <td>{{ p['usulan'] }}{% if p['dasar'] %}<div class="sub">Dasar: {{ p['dasar'] }}</div>{% endif %}</td>
+      <td>{{ p['target_baru'] or '—' }}</td>
+      <td><span class="badge {{ p['status']|badge }}">{{ p['status'] }}</span></td>
+      <td>{{ p['tanggal'] or '—' }}</td>
+      <td>
+        <a class="btn btn-kecil btn-abu" href="{{ url_for('peningkatan_form', id=p['id']) }}">Edit</a>
+        <form class="inline" method="post" action="{{ url_for('peningkatan_hapus', id=p['id']) }}"
+              onsubmit="return confirm('Hapus usulan peningkatan ini?')">
+          <button class="btn btn-kecil btn-merah">Hapus</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="7" class="kosong">Belum ada usulan peningkatan.</td></tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

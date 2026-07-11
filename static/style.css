@@ -1,0 +1,134 @@
+:root {
+  --biru: #1d4ed8;
+  --biru-tua: #1e3a8a;
+  --latar: #f4f6fb;
+  --kartu: #ffffff;
+  --teks: #1f2937;
+  --teks-redup: #6b7280;
+  --garis: #e5e7eb;
+  --hijau: #047857;
+  --hijau-latar: #d1fae5;
+  --kuning: #92400e;
+  --kuning-latar: #fef3c7;
+  --merah: #b91c1c;
+  --merah-latar: #fee2e2;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  background: var(--latar);
+  color: var(--teks);
+  line-height: 1.55;
+}
+.wrap { max-width: 1100px; margin: 0 auto; padding: 0 1rem; }
+
+/* ---------- Navigasi ---------- */
+.topbar { background: var(--biru-tua); color: #fff; }
+.topbar .wrap { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; padding-top: .6rem; padding-bottom: .6rem; }
+.brand { color: #fff; text-decoration: none; font-size: 1.15rem; font-weight: 700; }
+.brand span { color: #93c5fd; }
+.topbar nav { display: flex; flex-wrap: wrap; gap: .25rem; }
+.topbar nav a {
+  color: #dbeafe; text-decoration: none; padding: .35rem .7rem;
+  border-radius: 6px; font-size: .92rem;
+}
+.topbar nav a b { color: #93c5fd; }
+.topbar nav a:hover { background: rgba(255,255,255,.12); }
+.topbar nav a.aktif { background: var(--biru); color: #fff; }
+
+/* ---------- Umum ---------- */
+main { padding: 1.5rem 1rem 2.5rem; }
+h1 { font-size: 1.45rem; margin: .2rem 0 1rem; }
+h2 { font-size: 1.1rem; margin: 1.6rem 0 .6rem; }
+.deskripsi { color: var(--teks-redup); margin-top: -0.6rem; margin-bottom: 1.2rem; font-size: .95rem; }
+.baris-judul { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+
+.kartu {
+  background: var(--kartu); border: 1px solid var(--garis);
+  border-radius: 10px; padding: 1rem 1.2rem; margin-bottom: 1rem;
+}
+
+/* ---------- Tombol ---------- */
+.btn {
+  display: inline-block; background: var(--biru); color: #fff; border: none;
+  padding: .5rem .95rem; border-radius: 7px; text-decoration: none;
+  font-size: .92rem; cursor: pointer; font-family: inherit;
+}
+.btn:hover { background: var(--biru-tua); }
+.btn-kecil { padding: .25rem .6rem; font-size: .82rem; }
+.btn-abu { background: #e5e7eb; color: var(--teks); }
+.btn-abu:hover { background: #d1d5db; }
+.btn-merah { background: var(--merah-latar); color: var(--merah); }
+.btn-merah:hover { background: #fecaca; }
+form.inline { display: inline; }
+
+/* ---------- Tabel ---------- */
+.tabel-bungkus { overflow-x: auto; background: var(--kartu); border: 1px solid var(--garis); border-radius: 10px; }
+table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+th, td { text-align: left; padding: .6rem .8rem; border-bottom: 1px solid var(--garis); vertical-align: top; }
+th { background: #f9fafb; font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: var(--teks-redup); white-space: nowrap; }
+tr:last-child td { border-bottom: none; }
+td .sub { color: var(--teks-redup); font-size: .85rem; }
+.kosong { padding: 1.4rem; text-align: center; color: var(--teks-redup); }
+
+/* ---------- Badge ---------- */
+.badge {
+  display: inline-block; padding: .12rem .55rem; border-radius: 999px;
+  font-size: .78rem; font-weight: 600; white-space: nowrap;
+}
+.badge-hijau  { background: var(--hijau-latar);  color: var(--hijau); }
+.badge-kuning { background: var(--kuning-latar); color: var(--kuning); }
+.badge-merah  { background: var(--merah-latar);  color: var(--merah); }
+.badge-abu    { background: #e5e7eb; color: var(--teks-redup); }
+
+/* ---------- Formulir ---------- */
+form.formulir { background: var(--kartu); border: 1px solid var(--garis); border-radius: 10px; padding: 1.3rem; max-width: 760px; }
+.medan { margin-bottom: .95rem; }
+.medan label { display: block; font-weight: 600; font-size: .88rem; margin-bottom: .25rem; }
+.medan input, .medan select, .medan textarea {
+  width: 100%; padding: .5rem .65rem; border: 1px solid #d1d5db;
+  border-radius: 7px; font: inherit; background: #fff;
+}
+.medan textarea { min-height: 80px; resize: vertical; }
+.medan input:focus, .medan select:focus, .medan textarea:focus {
+  outline: 2px solid var(--biru); outline-offset: 0; border-color: var(--biru);
+}
+.dua-kolom { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1rem; }
+@media (max-width: 640px) { .dua-kolom { grid-template-columns: 1fr; } }
+
+/* ---------- Flash ---------- */
+.flash { padding: .65rem 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: .92rem; }
+.flash-sukses { background: var(--hijau-latar); color: var(--hijau); }
+.flash-error { background: var(--merah-latar); color: var(--merah); }
+
+/* ---------- Dashboard ---------- */
+.grid-stat { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: .8rem; margin-bottom: 1.4rem; }
+.stat { background: var(--kartu); border: 1px solid var(--garis); border-radius: 10px; padding: .85rem 1rem; }
+.stat .angka { font-size: 1.7rem; font-weight: 700; color: var(--biru-tua); }
+.stat .label { color: var(--teks-redup); font-size: .82rem; }
+
+.siklus { display: flex; flex-wrap: wrap; gap: .4rem; align-items: stretch; margin-bottom: 1.4rem; }
+.siklus a {
+  flex: 1 1 150px; text-decoration: none; background: var(--kartu);
+  border: 1px solid var(--garis); border-radius: 10px; padding: .8rem .9rem; color: var(--teks);
+  position: relative;
+}
+.siklus a:hover { border-color: var(--biru); }
+.siklus .tahap { font-weight: 700; color: var(--biru-tua); }
+.siklus .ket { font-size: .8rem; color: var(--teks-redup); }
+.siklus .panah { align-self: center; color: var(--teks-redup); font-weight: 700; }
+
+.filter-bar { margin-bottom: 1rem; display: flex; gap: .4rem; flex-wrap: wrap; }
+.filter-bar a {
+  text-decoration: none; font-size: .85rem; padding: .3rem .75rem;
+  border-radius: 999px; border: 1px solid var(--garis); color: var(--teks); background: var(--kartu);
+}
+.filter-bar a.aktif { background: var(--biru); border-color: var(--biru); color: #fff; }
+
+/* ---------- Detail standar ---------- */
+.rinci dt { font-weight: 600; font-size: .85rem; color: var(--teks-redup); margin-top: .7rem; }
+.rinci dd { margin: .15rem 0 0; }
+
+.footer { color: var(--teks-redup); font-size: .82rem; padding-bottom: 1.5rem; text-align: center; }

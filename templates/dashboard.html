@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h1>Dashboard Penjaminan Mutu</h1>
+<p class="deskripsi">Ringkasan pelaksanaan Sistem Penjaminan Mutu Internal berdasarkan siklus PPEPP.</p>
+
+<div class="siklus">
+  <a href="{{ url_for('standar_list') }}">
+    <div class="tahap">1. Penetapan</div>
+    <div class="ket">Menetapkan standar mutu beserta indikator dan targetnya</div>
+  </a>
+  <div class="panah">→</div>
+  <a href="{{ url_for('pelaksanaan_list') }}">
+    <div class="tahap">2. Pelaksanaan</div>
+    <div class="ket">Melaksanakan kegiatan untuk memenuhi standar</div>
+  </a>
+  <div class="panah">→</div>
+  <a href="{{ url_for('evaluasi_list') }}">
+    <div class="tahap">3. Evaluasi</div>
+    <div class="ket">AMI / monev atas capaian terhadap standar</div>
+  </a>
+  <div class="panah">→</div>
+  <a href="{{ url_for('pengendalian_list') }}">
+    <div class="tahap">4. Pengendalian</div>
+    <div class="ket">Tindakan korektif atas temuan evaluasi</div>
+  </a>
+  <div class="panah">→</div>
+  <a href="{{ url_for('peningkatan_list') }}">
+    <div class="tahap">5. Peningkatan</div>
+    <div class="ket">Kaizen: menaikkan standar secara berkelanjutan</div>
+  </a>
+</div>
+
+<div class="grid-stat">
+  <div class="stat"><div class="angka">{{ stat.standar }}</div><div class="label">Standar Mutu ({{ stat.standar_ditetapkan }} ditetapkan)</div></div>
+  <div class="stat"><div class="angka">{{ stat.pelaksanaan }}</div><div class="label">Catatan Pelaksanaan</div></div>
+  <div class="stat"><div class="angka">{{ stat.evaluasi }}</div><div class="label">Evaluasi Dilakukan</div></div>
+  <div class="stat"><div class="angka">{{ stat.temuan }}</div><div class="label">Temuan (tidak sesuai)</div></div>
+  <div class="stat"><div class="angka">{{ stat.pengendalian_terbuka }}</div><div class="label">Tindak Lanjut Belum Selesai</div></div>
+  <div class="stat"><div class="angka">{{ stat.peningkatan }}</div><div class="label">Usulan Peningkatan</div></div>
+</div>
+
+<h2>Tindak Lanjut yang Belum Selesai</h2>
+<div class="tabel-bungkus">
+  <table>
+    <tr><th>Standar</th><th>Periode</th><th>Tindakan</th><th>Penanggung Jawab</th><th>Batas Waktu</th><th>Status</th></tr>
+    {% for t in tindak_lanjut %}
+    <tr>
+      <td><a href="{{ url_for('standar_detail', id=t['standar_id']) }}">{{ t['kode'] }}</a><div class="sub">{{ t['nama_standar'] }}</div></td>
+      <td>{{ t['periode'] }}</td>
+      <td>{{ t['tindakan'] }}</td>
+      <td>{{ t['penanggung_jawab'] or '—' }}</td>
+      <td>{{ t['batas_waktu'] or '—' }}</td>
+      <td><span class="badge {{ t['status']|badge }}">{{ t['status'] }}</span></td>
+    </tr>
+    {% else %}
+    <tr><td colspan="6" class="kosong">Semua tindak lanjut telah selesai. 🎉</td></tr>
+    {% endfor %}
+  </table>
+</div>
+
+<h2>Evaluasi Terbaru</h2>
+<div class="tabel-bungkus">
+  <table>
+    <tr><th>Standar</th><th>Periode</th><th>Metode</th><th>Kesimpulan</th><th>Jenis Temuan</th></tr>
+    {% for e in evaluasi_terbaru %}
+    <tr>
+      <td>{{ e['kode'] }}<div class="sub">{{ e['nama_standar'] }}</div></td>
+      <td>{{ e['periode'] }}</td>
+      <td>{{ e['metode'] }}</td>
+      <td><span class="badge {{ e['kesimpulan']|badge }}">{{ e['kesimpulan'] }}</span></td>
+      <td><span class="badge {{ e['jenis_temuan']|badge }}">{{ e['jenis_temuan'] }}</span></td>
+    </tr>
+    {% else %}
+    <tr><td colspan="5" class="kosong">Belum ada evaluasi.</td></tr>
+    {% endfor %}
+  </table>
+</div>
+
+<h2>Sebaran Jenis Temuan</h2>
+<div class="tabel-bungkus">
+  <table>
+    <tr><th>Jenis Temuan</th><th>Jumlah</th></tr>
+    {% for t in temuan_per_jenis %}
+    <tr>
+      <td><span class="badge {{ t['jenis_temuan']|badge }}">{{ t['jenis_temuan'] }}</span></td>
+      <td>{{ t['jumlah'] }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="2" class="kosong">Belum ada data temuan.</td></tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

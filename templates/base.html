@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}SPMI PPEPP{% endblock %} · Sistem Penjaminan Mutu</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="{{ url_for('dashboard') }}">🛡️ SPMI <span>PPEPP</span></a>
+    <nav>
+      <a href="{{ url_for('dashboard') }}" class="{{ 'aktif' if request.endpoint == 'dashboard' }}">Dashboard</a>
+      <a href="{{ url_for('standar_list') }}" class="{{ 'aktif' if request.endpoint and request.endpoint.startswith('standar') }}"><b>P</b>enetapan</a>
+      <a href="{{ url_for('pelaksanaan_list') }}" class="{{ 'aktif' if request.endpoint and request.endpoint.startswith('pelaksanaan') }}"><b>P</b>elaksanaan</a>
+      <a href="{{ url_for('evaluasi_list') }}" class="{{ 'aktif' if request.endpoint and request.endpoint.startswith('evaluasi') }}"><b>E</b>valuasi</a>
+      <a href="{{ url_for('pengendalian_list') }}" class="{{ 'aktif' if request.endpoint and request.endpoint.startswith('pengendalian') }}"><b>P</b>engendalian</a>
+      <a href="{{ url_for('peningkatan_list') }}" class="{{ 'aktif' if request.endpoint and request.endpoint.startswith('peningkatan') }}"><b>P</b>eningkatan</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  {% with pesan = get_flashed_messages(with_categories=true) %}
+    {% for kategori, teks in pesan %}
+      <div class="flash flash-{{ kategori }}">{{ teks }}</div>
+    {% endfor %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="wrap footer">
+  Sistem Penjaminan Mutu Internal · Siklus PPEPP (Penetapan, Pelaksanaan, Evaluasi, Pengendalian, Peningkatan)
+</footer>
+</body>
+</html>

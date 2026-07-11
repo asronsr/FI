@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if s else 'Tetapkan' }} Standar{% endblock %}
+{% block content %}
+<h1>{{ 'Edit Standar' if s else 'Tetapkan Standar Baru' }}</h1>
+<form class="formulir" method="post">
+  <div class="dua-kolom">
+    <div class="medan">
+      <label for="kode">Kode Standar *</label>
+      <input id="kode" name="kode" required placeholder="mis. STD-PDK-03" value="{{ s['kode'] if s }}">
+    </div>
+    <div class="medan">
+      <label for="kategori">Kategori *</label>
+      <select id="kategori" name="kategori">
+        {% for k in kategori_list %}
+        <option {{ 'selected' if s and s['kategori'] == k }}>{{ k }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+  <div class="medan">
+    <label for="nama">Nama Standar *</label>
+    <input id="nama" name="nama" required placeholder="mis. Standar Kompetensi Lulusan" value="{{ s['nama'] if s }}">
+  </div>
+  <div class="medan">
+    <label for="pernyataan">Pernyataan Standar *</label>
+    <textarea id="pernyataan" name="pernyataan" required
+      placeholder="Rumusan standar dengan pola ABCD (Audience, Behavior, Competence, Degree)">{{ s['pernyataan'] if s }}</textarea>
+  </div>
+  <div class="medan">
+    <label for="indikator">Indikator Kinerja *</label>
+    <textarea id="indikator" name="indikator" required
+      placeholder="Ukuran keberhasilan pencapaian standar">{{ s['indikator'] if s }}</textarea>
+  </div>
+  <div class="dua-kolom">
+    <div class="medan">
+      <label for="target">Target *</label>
+      <input id="target" name="target" required placeholder="mis. ≥ 80%" value="{{ s['target'] if s }}">
+    </div>
+    <div class="medan">
+      <label for="penanggung_jawab">Penanggung Jawab</label>
+      <input id="penanggung_jawab" name="penanggung_jawab" placeholder="mis. Wakil Rektor I"
+             value="{{ s['penanggung_jawab'] if s }}">
+    </div>
+  </div>
+  <div class="dua-kolom">
+    <div class="medan">
+      <label for="status">Status *</label>
+      <select id="status" name="status">
+        {% for st in status_list %}
+        <option {{ 'selected' if s and s['status'] == st }}>{{ st }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="medan">
+      <label for="tanggal_penetapan">Tanggal Penetapan</label>
+      <input type="date" id="tanggal_penetapan" name="tanggal_penetapan"
+             value="{{ s['tanggal_penetapan'] if s and s['tanggal_penetapan'] }}">
+    </div>
+  </div>
+  <button class="btn" type="submit">Simpan</button>
+  <a class="btn btn-abu" href="{{ url_for('standar_list') }}">Batal</a>
+</form>
+{% endblock %}

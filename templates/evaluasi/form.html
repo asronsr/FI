@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if e else 'Catat' }} Evaluasi{% endblock %}
+{% block content %}
+<h1>{{ 'Edit Evaluasi' if e else 'Catat Hasil Evaluasi' }}</h1>
+<form class="formulir" method="post">
+  <div class="medan">
+    <label for="standar_id">Standar yang Dievaluasi *</label>
+    <select id="standar_id" name="standar_id" required>
+      {% for s in standar %}
+      <option value="{{ s['id'] }}" {{ 'selected' if e and e['standar_id'] == s['id'] }}>
+        {{ s['kode'] }} — {{ s['nama'] }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="dua-kolom">
+    <div class="medan">
+      <label for="periode">Periode *</label>
+      <input id="periode" name="periode" required placeholder="mis. 2026 Ganjil" value="{{ e['periode'] if e }}">
+    </div>
+    <div class="medan">
+      <label for="metode">Metode *</label>
+      <select id="metode" name="metode">
+        {% for m in metode_list %}
+        <option {{ 'selected' if e and e['metode'] == m }}>{{ m }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+  <div class="dua-kolom">
+    <div class="medan">
+      <label for="auditor">Auditor / Evaluator</label>
+      <input id="auditor" name="auditor" value="{{ e['auditor'] if e }}">
+    </div>
+    <div class="medan">
+      <label for="tanggal">Tanggal</label>
+      <input type="date" id="tanggal" name="tanggal" value="{{ e['tanggal'] if e and e['tanggal'] }}">
+    </div>
+  </div>
+  <div class="medan">
+    <label for="capaian">Capaian Terukur</label>
+    <textarea id="capaian" name="capaian" placeholder="mis. 78% lulusan bekerja dalam 6 bulan (target ≥ 80%)">{{ e['capaian'] if e }}</textarea>
+  </div>
+  <div class="dua-kolom">
+    <div class="medan">
+      <label for="kesimpulan">Kesimpulan *</label>
+      <select id="kesimpulan" name="kesimpulan">
+        {% for k in kesimpulan_list %}
+        <option {{ 'selected' if e and e['kesimpulan'] == k }}>{{ k }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="medan">
+      <label for="jenis_temuan">Jenis Temuan *</label>
+      <select id="jenis_temuan" name="jenis_temuan">
+        {% for t in temuan_list %}
+        <option {{ 'selected' if e and e['jenis_temuan'] == t }}>{{ t }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+  <div class="medan">
+    <label for="temuan">Uraian Temuan</label>
+    <textarea id="temuan" name="temuan" placeholder="Uraian ketidaksesuaian/observasi yang ditemukan">{{ e['temuan'] if e }}</textarea>
+  </div>
+  <button class="btn" type="submit">Simpan</button>
+  <a class="btn btn-abu" href="{{ url_for('evaluasi_list') }}">Batal</a>
+</form>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if p else 'Tambah' }} Pengendalian{% endblock %}
+{% block content %}
+<h1>{{ 'Edit Tindakan Pengendalian' if p else 'Tambah Tindakan Pengendalian' }}</h1>
+{% if not evaluasi %}
+<div class="flash flash-error">Belum ada evaluasi yang tercatat. Catat hasil evaluasi terlebih dahulu sebelum menambahkan tindakan pengendalian.</div>
+<a class="btn" href="{{ url_for('evaluasi_form') }}">+ Catat Evaluasi</a>
+{% else %}
+<form class="formulir" method="post">
+  <div class="medan">
+    <label for="evaluasi_id">Temuan Evaluasi yang Ditindaklanjuti *</label>
+    <select id="evaluasi_id" name="evaluasi_id" required>
+      {% for e in evaluasi %}
+      <option value="{{ e['id'] }}" {{ 'selected' if p and p['evaluasi_id'] == e['id'] }}>
+        {{ e['kode'] }} · {{ e['periode'] }} · {{ e['jenis_temuan'] }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="medan">
+    <label for="akar_masalah">Akar Masalah</label>
+    <textarea id="akar_masalah" name="akar_masalah" placeholder="Analisis penyebab ketidaksesuaian">{{ p['akar_masalah'] if p }}</textarea>
+  </div>
+  <div class="medan">
+    <label for="tindakan">Tindakan Korektif *</label>
+    <textarea id="tindakan" name="tindakan" required placeholder="Rencana tindak lanjut (RTL)">{{ p['tindakan'] if p }}</textarea>
+  </div>
+  <div class="dua-kolom">
+    <div class="medan">
+      <label for="penanggung_jawab">Penanggung Jawab</label>
+      <input id="penanggung_jawab" name="penanggung_jawab" value="{{ p['penanggung_jawab'] if p }}">
+    </div>
+    <div class="medan">
+      <label for="batas_waktu">Batas Waktu</label>
+      <input type="date" id="batas_waktu" name="batas_waktu" value="{{ p['batas_waktu'] if p and p['batas_waktu'] }}">
+    </div>
+  </div>
+  <div class="dua-kolom">
+    <div class="medan">
+      <label for="status">Status *</label>
+      <select id="status" name="status">
+        {% for st in status_list %}
+        <option {{ 'selected' if p and p['status'] == st }}>{{ st }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+  <div class="medan">
+    <label for="hasil">Hasil Tindak Lanjut</label>
+    <textarea id="hasil" name="hasil" placeholder="Diisi setelah tindakan dilaksanakan">{{ p['hasil'] if p }}</textarea>
+  </div>
+  <button class="btn" type="submit">Simpan</button>
+  <a class="btn btn-abu" href="{{ url_for('pengendalian_list') }}">Batal</a>
+</form>
+{% endif %}
+{% endblock %}

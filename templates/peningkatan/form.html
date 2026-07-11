@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit' if p else 'Usulkan' }} Peningkatan{% endblock %}
+{% block content %}
+<h1>{{ 'Edit Usulan Peningkatan' if p else 'Usulkan Peningkatan Standar' }}</h1>
+<form class="formulir" method="post">
+  <div class="medan">
+    <label for="standar_id">Standar yang Ditingkatkan *</label>
+    <select id="standar_id" name="standar_id" required>
+      {% for s in standar %}
+      <option value="{{ s['id'] }}" {{ 'selected' if p and p['standar_id'] == s['id'] }}>
+        {{ s['kode'] }} — {{ s['nama'] }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="dua-kolom">
+    <div class="medan">
+      <label for="jenis">Jenis Peningkatan *</label>
+      <select id="jenis" name="jenis">
+        {% for j in jenis_list %}
+        <option {{ 'selected' if p and p['jenis'] == j }}>{{ j }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="medan">
+      <label for="tanggal">Tanggal Usulan</label>
+      <input type="date" id="tanggal" name="tanggal" value="{{ p['tanggal'] if p and p['tanggal'] }}">
+    </div>
+  </div>
+  <div class="medan">
+    <label for="usulan">Usulan Peningkatan *</label>
+    <textarea id="usulan" name="usulan" required placeholder="mis. menaikkan target, merevisi pernyataan standar, benchmarking">{{ p['usulan'] if p }}</textarea>
+  </div>
+  <div class="medan">
+    <label for="dasar">Dasar Peningkatan</label>
+    <textarea id="dasar" name="dasar" placeholder="mis. hasil AMI, RTM, capaian melampaui target dua siklus berturut-turut">{{ p['dasar'] if p }}</textarea>
+  </div>
+  <div class="dua-kolom">
+    <div class="medan">
+      <label for="target_baru">Target Baru</label>
+      <input id="target_baru" name="target_baru" placeholder="mis. ≥ 85%" value="{{ p['target_baru'] if p }}">
+    </div>
+    <div class="medan">
+      <label for="status">Status *</label>
+      <select id="status" name="status">
+        {% for st in status_list %}
+        <option {{ 'selected' if p and p['status'] == st }}>{{ st }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+  <button class="btn" type="submit">Simpan</button>
+  <a class="btn btn-abu" href="{{ url_for('peningkatan_list') }}">Batal</a>
+</form>
+{% endblock %}

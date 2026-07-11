@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Pelaksanaan{% endblock %}
+{% block content %}
+<div class="baris-judul">
+  <h1>Pelaksanaan Standar</h1>
+  <a class="btn" href="{{ url_for('pelaksanaan_form') }}">+ Catat Pelaksanaan</a>
+</div>
+<p class="deskripsi">Tahap kedua siklus PPEPP: mendokumentasikan kegiatan pemenuhan standar beserta bukti pelaksanaannya.</p>
+
+<div class="tabel-bungkus">
+  <table>
+    <tr><th>Standar</th><th>Kegiatan</th><th>Unit</th><th>Periode</th><th>Capaian</th><th>Bukti</th><th></th></tr>
+    {% for p in rows %}
+    <tr>
+      <td><a href="{{ url_for('standar_detail', id=p['standar_id']) }}">{{ p['kode'] }}</a></td>
+      <td>{{ p['kegiatan'] }}{% if p['catatan'] %}<div class="sub">{{ p['catatan'] }}</div>{% endif %}</td>
+      <td>{{ p['unit'] }}</td>
+      <td>{{ p['periode'] }}<div class="sub">{{ p['tanggal'] or '' }}</div></td>
+      <td>{{ p['capaian'] or '—' }}</td>
+      <td>{{ p['bukti'] or '—' }}</td>
+      <td>
+        <a class="btn btn-kecil btn-abu" href="{{ url_for('pelaksanaan_form', id=p['id']) }}">Edit</a>
+        <form class="inline" method="post" action="{{ url_for('pelaksanaan_hapus', id=p['id']) }}"
+              onsubmit="return confirm('Hapus catatan pelaksanaan ini?')">
+          <button class="btn btn-kecil btn-merah">Hapus</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="7" class="kosong">Belum ada catatan pelaksanaan.</td></tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}
