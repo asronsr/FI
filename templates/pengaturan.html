@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Pengaturan{% endblock %}
+{% block content %}
+<h1>Pengaturan Aplikasi</h1>
+<p class="deskripsi">Siklus PPEPP berlaku umum untuk semua organisasi. Sesuaikan kategori standar
+dan metode evaluasi dengan domain Anda — pilih profil siap pakai atau sunting manual.</p>
+
+<div class="kartu">
+  <h2 style="margin-top:0">Profil Siap Pakai</h2>
+  <p class="deskripsi" style="margin-top:0">Profil aktif:
+    <span class="badge badge-abu">{{ k.get('profil', 'Pendidikan Tinggi') }}</span>.
+    Menerapkan profil akan menimpa daftar kategori dan metode di bawah.</p>
+  {% for p in profil_list %}
+  <form class="inline" method="post"
+        onsubmit="return confirm('Terapkan profil {{ p }}? Daftar kategori dan metode saat ini akan ditimpa.')">
+    <input type="hidden" name="aksi" value="profil">
+    <input type="hidden" name="profil" value="{{ p }}">
+    <button class="btn {{ 'btn-abu' if k.get('profil') == p }}" type="submit">
+      {{ '✓ ' if k.get('profil') == p }}{{ p }}</button>
+  </form>
+  {% endfor %}
+</div>
+
+<form class="formulir" method="post">
+  <input type="hidden" name="aksi" value="simpan">
+  <div class="medan">
+    <label for="nama_instansi">Nama Instansi / Perusahaan</label>
+    <input id="nama_instansi" name="nama_instansi"
+           placeholder="mis. Universitas Amikom Yogyakarta / PT Maju Makmur"
+           value="{{ k.get('nama_instansi', '') }}">
+  </div>
+  <div class="dua-kolom">
+    <div class="medan">
+      <label for="kategori_standar">Kategori Standar (satu per baris)</label>
+      <textarea id="kategori_standar" name="kategori_standar" rows="7"
+                style="min-height:150px">{{ k.get('kategori_standar', '') }}</textarea>
+    </div>
+    <div class="medan">
+      <label for="metode_evaluasi">Metode Evaluasi (satu per baris)</label>
+      <textarea id="metode_evaluasi" name="metode_evaluasi" rows="7"
+                style="min-height:150px">{{ k.get('metode_evaluasi', '') }}</textarea>
+    </div>
+  </div>
+  <button class="btn" type="submit">Simpan Pengaturan</button>
+  <a class="btn btn-abu" href="{{ url_for('dashboard') }}">Batal</a>
+</form>
+
+<p class="deskripsi" style="margin-top:1rem">Catatan: standar yang sudah tercatat dengan kategori
+lama tetap tersimpan dan tampil di daftar «Semua»; ubah kategorinya lewat tombol Edit bila perlu.</p>
+{% endblock %}

@@ -20,6 +20,9 @@
     <div class="medan">
       <label for="metode">Metode *</label>
       <select id="metode" name="metode">
+        {% if e and e['metode'] not in metode_list %}
+        <option selected>{{ e['metode'] }}</option>
+        {% endif %}
         {% for m in metode_list %}
         <option {{ 'selected' if e and e['metode'] == m }}>{{ m }}</option>
         {% endfor %}

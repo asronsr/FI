@@ -58,6 +58,11 @@ CREATE TABLE IF NOT EXISTS pengendalian (
     dibuat_pada TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
 );
 
+CREATE TABLE IF NOT EXISTS pengaturan (
+    kunci TEXT PRIMARY KEY,
+    nilai TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS peningkatan (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     standar_id INTEGER NOT NULL REFERENCES standar(id) ON DELETE CASCADE,
@@ -79,9 +84,21 @@ def get_db():
     return conn
 
 
+PENGATURAN_BAWAAN = {
+    "profil": "Pendidikan Tinggi",
+    "nama_instansi": "",
+    "kategori_standar": "Pendidikan\nPenelitian\nPengabdian\nTambahan",
+    "metode_evaluasi": ("Audit Mutu Internal\nMonitoring dan Evaluasi\n"
+                        "Survei Kepuasan\nRapat Tinjauan Manajemen"),
+}
+
+
 def init_db(seed=True):
     conn = get_db()
     conn.executescript(SCHEMA)
+    conn.executemany(
+        "INSERT OR IGNORE INTO pengaturan (kunci, nilai) VALUES (?, ?)",
+        PENGATURAN_BAWAAN.items())
     if seed and conn.execute("SELECT COUNT(*) FROM standar").fetchone()[0] == 0:
         _seed(conn)
     conn.commit()

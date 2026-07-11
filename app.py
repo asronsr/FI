@@ -9,10 +9,7 @@ from db import get_db, init_db
 app = Flask(__name__)
 app.secret_key = "spmi-ppepp-dev-key"
 
-KATEGORI_STANDAR = ["Pendidikan", "Penelitian", "Pengabdian", "Tambahan"]
 STATUS_STANDAR = ["Draf", "Ditetapkan", "Dalam Peningkatan", "Tidak Berlaku"]
-METODE_EVALUASI = ["Audit Mutu Internal", "Monitoring dan Evaluasi",
-                   "Survei Kepuasan", "Rapat Tinjauan Manajemen"]
 KESIMPULAN_EVALUASI = ["Melampaui Standar", "Mencapai Standar",
                        "Belum Mencapai Standar", "Menyimpang dari Standar"]
 JENIS_TEMUAN = ["Sesuai", "Observasi", "KTS Minor", "KTS Mayor"]
@@ -20,6 +17,58 @@ STATUS_PENGENDALIAN = ["Terbuka", "Dalam Proses", "Selesai"]
 JENIS_PENINGKATAN = ["Peningkatan Target", "Revisi Standar",
                      "Standar Baru", "Benchmarking"]
 STATUS_PENINGKATAN = ["Diusulkan", "Dikaji", "Disetujui", "Diterapkan", "Ditolak"]
+
+# Profil siap pakai: mengisi daftar kategori standar dan metode evaluasi
+# sesuai domain organisasi. Daftar tetap dapat disunting manual di Pengaturan.
+PROFIL = {
+    "Pendidikan Tinggi": {
+        "kategori_standar": ["Pendidikan", "Penelitian", "Pengabdian", "Tambahan"],
+        "metode_evaluasi": ["Audit Mutu Internal", "Monitoring dan Evaluasi",
+                            "Survei Kepuasan", "Rapat Tinjauan Manajemen"],
+    },
+    "Manufaktur": {
+        "kategori_standar": ["Proses Produksi", "Bahan Baku", "Produk Jadi",
+                             "K3 & Lingkungan", "Pendukung"],
+        "metode_evaluasi": ["Audit Mutu Internal", "Inspeksi QC",
+                            "Statistical Process Control",
+                            "Audit Eksternal / Sertifikasi",
+                            "Rapat Tinjauan Manajemen"],
+    },
+}
+
+
+def get_konfig(conn):
+    """Konfigurasi aktif dari tabel pengaturan, dengan daftar terurai per baris."""
+    k = {r["kunci"]: r["nilai"] for r in
+         conn.execute("SELECT kunci, nilai FROM pengaturan").fetchall()}
+
+    def daftar(kunci, cadangan):
+        baris = [b.strip() for b in k.get(kunci, "").splitlines() if b.strip()]
+        return baris or cadangan
+
+    return {
+        "profil": k.get("profil", "Pendidikan Tinggi"),
+        "nama_instansi": k.get("nama_instansi", ""),
+        "kategori_standar": daftar("kategori_standar",
+                                   PROFIL["Pendidikan Tinggi"]["kategori_standar"]),
+        "metode_evaluasi": daftar("metode_evaluasi",
+                                  PROFIL["Pendidikan Tinggi"]["metode_evaluasi"]),
+    }
+
+
+def simpan_pengaturan(conn, data):
+    conn.executemany(
+        """INSERT INTO pengaturan (kunci, nilai) VALUES (?, ?)
+           ON CONFLICT(kunci) DO UPDATE SET nilai = excluded.nilai""",
+        data.items())
+
+
+@app.context_processor
+def sisipkan_konfig():
+    conn = get_db()
+    konfig = get_konfig(conn)
+    conn.close()
+    return {"konfig": konfig}
 
 
 @app.template_filter("badge")
@@ -101,9 +150,10 @@ def standar_list():
             "SELECT * FROM standar WHERE kategori = ? ORDER BY kode", (kategori,)).fetchall()
     else:
         rows = conn.execute("SELECT * FROM standar ORDER BY kode").fetchall()
+    kategori_list = get_konfig(conn)["kategori_standar"]
     conn.close()
     return render_template("standar/list.html", rows=rows,
-                           kategori_aktif=kategori, kategori_list=KATEGORI_STANDAR)
+                           kategori_aktif=kategori, kategori_list=kategori_list)
 
 
 @app.route("/standar/<int:id>")
@@ -166,9 +216,10 @@ def standar_form(id=None):
         except Exception as e:  # kode duplikat dan sejenisnya
             conn.rollback()
             flash(f"Gagal menyimpan: {e}", "error")
+    kategori_list = get_konfig(conn)["kategori_standar"]
     conn.close()
     return render_template("standar/form.html", s=row,
-                           kategori_list=KATEGORI_STANDAR, status_list=STATUS_STANDAR)
+                           kategori_list=kategori_list, status_list=STATUS_STANDAR)
 
 
 @app.route("/standar/<int:id>/hapus", methods=["POST"])
@@ -285,9 +336,10 @@ def evaluasi_form(id=None):
         conn.close()
         return redirect(url_for("evaluasi_list"))
     standar = daftar_standar(conn)
+    metode_list = get_konfig(conn)["metode_evaluasi"]
     conn.close()
     return render_template("evaluasi/form.html", e=row, standar=standar,
-                           metode_list=METODE_EVALUASI,
+                           metode_list=metode_list,
                            kesimpulan_list=KESIMPULAN_EVALUASI,
                            temuan_list=JENIS_TEMUAN)
 
@@ -421,6 +473,43 @@ def peningkatan_hapus(id):
     conn.close()
     flash("Usulan peningkatan dihapus.", "sukses")
     return redirect(url_for("peningkatan_list"))
+
+
+# --------------------------------------------------------------- Pengaturan
+
+@app.route("/pengaturan", methods=["GET", "POST"])
+def pengaturan():
+    conn = get_db()
+    if request.method == "POST":
+        aksi = request.form.get("aksi")
+        if aksi == "profil":
+            nama_profil = request.form.get("profil", "")
+            preset = PROFIL.get(nama_profil)
+            if preset:
+                simpan_pengaturan(conn, {
+                    "profil": nama_profil,
+                    "kategori_standar": "\n".join(preset["kategori_standar"]),
+                    "metode_evaluasi": "\n".join(preset["metode_evaluasi"]),
+                })
+                conn.commit()
+                flash(f"Profil «{nama_profil}» diterapkan.", "sukses")
+            else:
+                flash("Profil tidak dikenal.", "error")
+        else:
+            simpan_pengaturan(conn, {
+                "profil": "Kustom",
+                "nama_instansi": request.form.get("nama_instansi", "").strip(),
+                "kategori_standar": request.form.get("kategori_standar", "").strip(),
+                "metode_evaluasi": request.form.get("metode_evaluasi", "").strip(),
+            })
+            conn.commit()
+            flash("Pengaturan disimpan.", "sukses")
+        conn.close()
+        return redirect(url_for("pengaturan"))
+    k = {r["kunci"]: r["nilai"] for r in
+         conn.execute("SELECT kunci, nilai FROM pengaturan").fetchall()}
+    conn.close()
+    return render_template("pengaturan.html", k=k, profil_list=list(PROFIL))
 
 
 init_db()

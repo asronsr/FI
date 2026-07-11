@@ -1,7 +1,9 @@
 # SPMI PPEPP — Aplikasi Penjaminan Mutu Internal
 
-Aplikasi web untuk mengelola Sistem Penjaminan Mutu Internal (SPMI) perguruan tinggi
-berdasarkan siklus **PPEPP** sesuai Permendikbudristek tentang SPM Dikti:
+Aplikasi web untuk mengelola Sistem Penjaminan Mutu Internal (SPMI) berdasarkan siklus
+**PPEPP**. Dirancang untuk perguruan tinggi (sesuai SPM Dikti) namun **dapat dikonfigurasi**
+untuk domain lain seperti industri manufaktur — siklus PPEPP setara dengan siklus
+PDCA/kaizen pada ISO 9001.
 
 | Tahap | Modul | Fungsi |
 |---|---|---|
@@ -14,6 +16,21 @@ berdasarkan siklus **PPEPP** sesuai Permendikbudristek tentang SPM Dikti:
 Dashboard menampilkan ringkasan siklus: jumlah standar, temuan, tindak lanjut yang belum
 selesai, evaluasi terbaru, dan sebaran jenis temuan. Halaman detail setiap standar
 menampilkan jejak lengkap siklus PPEPP untuk standar tersebut.
+
+## Konfigurasi Domain
+
+Menu **⚙️ Pengaturan** memungkinkan aplikasi dipakai lintas domain:
+
+- **Profil siap pakai** — satu klik untuk mengisi kategori standar dan metode evaluasi:
+  - *Pendidikan Tinggi*: kategori Pendidikan/Penelitian/Pengabdian/Tambahan; metode
+    AMI, monev, survei kepuasan, RTM.
+  - *Manufaktur*: kategori Proses Produksi/Bahan Baku/Produk Jadi/K3 & Lingkungan/Pendukung;
+    metode AMI, inspeksi QC, SPC, audit eksternal/sertifikasi, RTM.
+- **Sunting manual** — nama instansi/perusahaan serta daftar kategori dan metode bebas
+  diubah (satu nilai per baris); profil tercatat sebagai *Kustom*.
+
+Pengaturan disimpan di basis data, sehingga bertahan saat aplikasi dimulai ulang. Data
+yang sudah tercatat dengan kategori/metode lama tetap tersimpan dan tampil di daftar.
 
 ## Teknologi
 

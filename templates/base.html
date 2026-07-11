@@ -17,6 +17,7 @@
       <a href="{{ url_for('evaluasi_list') }}" class="{{ 'aktif' if request.endpoint and request.endpoint.startswith('evaluasi') }}"><b>E</b>valuasi</a>
       <a href="{{ url_for('pengendalian_list') }}" class="{{ 'aktif' if request.endpoint and request.endpoint.startswith('pengendalian') }}"><b>P</b>engendalian</a>
       <a href="{{ url_for('peningkatan_list') }}" class="{{ 'aktif' if request.endpoint and request.endpoint.startswith('peningkatan') }}"><b>P</b>eningkatan</a>
+      <a href="{{ url_for('pengaturan') }}" class="{{ 'aktif' if request.endpoint == 'pengaturan' }}">⚙️ Pengaturan</a>
     </nav>
   </div>
 </header>
@@ -31,7 +32,7 @@
 </main>
 
 <footer class="wrap footer">
-  Sistem Penjaminan Mutu Internal · Siklus PPEPP (Penetapan, Pelaksanaan, Evaluasi, Pengendalian, Peningkatan)
+  {% if konfig.nama_instansi %}{{ konfig.nama_instansi }} · {% endif %}Sistem Penjaminan Mutu Internal · Siklus PPEPP (Penetapan, Pelaksanaan, Evaluasi, Pengendalian, Peningkatan)
 </footer>
 </body>
 </html>

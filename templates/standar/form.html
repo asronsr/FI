@@ -6,11 +6,14 @@
   <div class="dua-kolom">
     <div class="medan">
       <label for="kode">Kode Standar *</label>
-      <input id="kode" name="kode" required placeholder="mis. STD-PDK-03" value="{{ s['kode'] if s }}">
+      <input id="kode" name="kode" required placeholder="mis. STD-PDK-03 / STD-PRD-01" value="{{ s['kode'] if s }}">
     </div>
     <div class="medan">
       <label for="kategori">Kategori *</label>
       <select id="kategori" name="kategori">
+        {% if s and s['kategori'] not in kategori_list %}
+        <option selected>{{ s['kategori'] }}</option>
+        {% endif %}
         {% for k in kategori_list %}
         <option {{ 'selected' if s and s['kategori'] == k }}>{{ k }}</option>
         {% endfor %}
@@ -38,7 +41,7 @@
     </div>
     <div class="medan">
       <label for="penanggung_jawab">Penanggung Jawab</label>
-      <input id="penanggung_jawab" name="penanggung_jawab" placeholder="mis. Wakil Rektor I"
+      <input id="penanggung_jawab" name="penanggung_jawab" placeholder="mis. Wakil Rektor I / Manajer QA"
              value="{{ s['penanggung_jawab'] if s }}">
     </div>
   </div>
