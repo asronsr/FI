@@ -58,6 +58,18 @@ CREATE TABLE IF NOT EXISTS pengendalian (
     dibuat_pada TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
 );
 
+CREATE TABLE IF NOT EXISTS dokumen (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    standar_id INTEGER NOT NULL REFERENCES standar(id) ON DELETE CASCADE,
+    jenis TEXT NOT NULL DEFAULT 'SK',
+    judul TEXT NOT NULL,
+    nomor TEXT,
+    tanggal TEXT,
+    nama_file TEXT NOT NULL,
+    nama_asli TEXT NOT NULL,
+    dibuat_pada TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
+);
+
 CREATE TABLE IF NOT EXISTS pengaturan (
     kunci TEXT PRIMARY KEY,
     nilai TEXT NOT NULL

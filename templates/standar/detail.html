@@ -4,6 +4,7 @@
 <div class="baris-judul">
   <h1>{{ s['kode'] }} — {{ s['nama'] }}</h1>
   <div>
+    <a class="btn" href="{{ url_for('standar_cetak', id=s['id']) }}">📄 Generate Dokumen</a>
     <a class="btn btn-abu" href="{{ url_for('standar_form', id=s['id']) }}">Edit</a>
     <a class="btn btn-abu" href="{{ url_for('standar_list') }}">← Kembali</a>
   </div>
@@ -19,6 +20,68 @@
     <dt>Target</dt><dd>{{ s['target'] }}</dd>
     <dt>Penanggung Jawab</dt><dd>{{ s['penanggung_jawab'] or '—' }}</dd>
   </dl>
+</div>
+
+<h2>📁 Dokumen Penetapan ({{ dokumen|length }})</h2>
+<p class="deskripsi">Dokumen dasar penetapan standar ini — SK, kebijakan, peraturan, atau SOP.
+Unggah dokumen yang sudah ada, atau gunakan tombol «Generate Dokumen» untuk membuat
+dokumen standar dari data yang diinput.</p>
+<div class="tabel-bungkus">
+  <table>
+    <tr><th>Jenis</th><th>Judul</th><th>Nomor</th><th>Tanggal</th><th>Berkas</th><th></th></tr>
+    {% for d in dokumen %}
+    <tr>
+      <td><span class="badge badge-abu">{{ d['jenis'] }}</span></td>
+      <td>{{ d['judul'] }}</td>
+      <td>{{ d['nomor'] or '—' }}</td>
+      <td>{{ d['tanggal'] or '—' }}</td>
+      <td><a href="{{ url_for('dokumen_unduh', id=d['id']) }}">⬇ {{ d['nama_asli'] }}</a></td>
+      <td>
+        <form class="inline" method="post" action="{{ url_for('dokumen_hapus', id=d['id']) }}"
+              onsubmit="return confirm('Hapus dokumen ini?')">
+          <button class="btn btn-kecil btn-merah">Hapus</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="6" class="kosong">Belum ada dokumen penetapan yang diunggah.</td></tr>
+    {% endfor %}
+  </table>
+</div>
+
+<div class="kartu">
+  <strong>Unggah Dokumen Penetapan</strong>
+  <form method="post" action="{{ url_for('dokumen_unggah', id=s['id']) }}"
+        enctype="multipart/form-data" style="margin-top:.6rem">
+    <div class="dua-kolom">
+      <div class="medan">
+        <label for="berkas">Berkas * <span class="sub">(pdf, doc, docx, xls, xlsx, ppt, pptx, jpg, png — maks. 16 MB)</span></label>
+        <input type="file" id="berkas" name="berkas" required
+               accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png">
+      </div>
+      <div class="medan">
+        <label for="jenis">Jenis Dokumen *</label>
+        <select id="jenis" name="jenis">
+          {% for j in jenis_dokumen %}<option>{{ j }}</option>{% endfor %}
+        </select>
+      </div>
+    </div>
+    <div class="medan">
+      <label for="judul">Judul Dokumen <span class="sub">(kosongkan untuk memakai nama berkas)</span></label>
+      <input id="judul" name="judul" placeholder="mis. SK Rektor tentang Penetapan Standar Kompetensi Lulusan">
+    </div>
+    <div class="dua-kolom">
+      <div class="medan">
+        <label for="nomor">Nomor Dokumen</label>
+        <input id="nomor" name="nomor" placeholder="mis. 12/SK/REK/2026">
+      </div>
+      <div class="medan">
+        <label for="tanggal">Tanggal Dokumen</label>
+        <input type="date" id="tanggal" name="tanggal">
+      </div>
+    </div>
+    <button class="btn" type="submit">⬆ Unggah</button>
+  </form>
 </div>
 
 <h2>Riwayat Siklus PPEPP untuk Standar Ini</h2>

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>Dokumen Standar {{ s['kode'] }}</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: "Times New Roman", Georgia, serif; color: #111;
+         max-width: 800px; margin: 0 auto; padding: 2rem 1.5rem; line-height: 1.6; }
+  .aksi { font-family: system-ui, sans-serif; display: flex; gap: .5rem; margin-bottom: 1.5rem; }
+  .aksi a, .aksi button { padding: .5rem 1rem; border-radius: 6px; border: 1px solid #999;
+    background: #fff; cursor: pointer; text-decoration: none; color: #111; font-size: .9rem; }
+  .aksi button { background: #1d4ed8; color: #fff; border-color: #1d4ed8; }
+  header.kop { text-align: center; border-bottom: 3px double #111; padding-bottom: .8rem; margin-bottom: 1.5rem; }
+  header.kop h1 { margin: 0; font-size: 1.3rem; text-transform: uppercase; letter-spacing: .05em; }
+  header.kop .sub { font-size: .95rem; }
+  h2.judul { text-align: center; font-size: 1.15rem; text-transform: uppercase; margin: 1.2rem 0 .2rem; }
+  p.kode { text-align: center; margin: 0 0 1.5rem; font-size: 1rem; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; }
+  th, td { border: 1px solid #111; padding: .55rem .7rem; text-align: left; vertical-align: top; font-size: .95rem; }
+  th { width: 220px; background: #f0f0f0; font-weight: bold; }
+  .ttd { display: flex; justify-content: flex-end; margin-top: 3rem; }
+  .ttd .kolom { text-align: center; width: 280px; }
+  .ttd .ruang { height: 90px; }
+  @media print { .aksi { display: none; } body { padding: 0; } }
+</style>
+</head>
+<body>
+<div class="aksi">
+  <a href="{{ url_for('standar_detail', id=s['id']) }}">← Kembali</a>
+  <button onclick="window.print()">🖨 Cetak / Simpan sebagai PDF</button>
+</div>
+
+<header class="kop">
+  <h1>{{ konfig.nama_instansi or 'Nama Instansi / Perusahaan' }}</h1>
+  <div class="sub">Sistem Penjaminan Mutu Internal</div>
+</header>
+
+<h2 class="judul">Dokumen Standar Mutu</h2>
+<p class="kode">{{ s['kode'] }} — {{ s['nama'] }}</p>
+
+<table>
+  <tr><th>Kode Standar</th><td>{{ s['kode'] }}</td></tr>
+  <tr><th>Nama Standar</th><td>{{ s['nama'] }}</td></tr>
+  <tr><th>Kategori</th><td>{{ s['kategori'] }}</td></tr>
+  <tr><th>Pernyataan Standar</th><td>{{ s['pernyataan'] }}</td></tr>
+  <tr><th>Indikator Kinerja</th><td>{{ s['indikator'] }}</td></tr>
+  <tr><th>Target Capaian</th><td>{{ s['target'] }}</td></tr>
+  <tr><th>Penanggung Jawab</th><td>{{ s['penanggung_jawab'] or '—' }}</td></tr>
+  <tr><th>Status</th><td>{{ s['status'] }}</td></tr>
+  <tr><th>Tanggal Penetapan</th><td>{{ s['tanggal_penetapan'] or '—' }}</td></tr>
+</table>
+
+<div class="ttd">
+  <div class="kolom">
+    <div>Ditetapkan oleh,</div>
+    <div class="ruang"></div>
+    <div><strong>(&nbsp;.................................................&nbsp;)</strong></div>
+    <div>{{ s['penanggung_jawab'] or 'Penanggung Jawab' }}</div>
+  </div>
+</div>
+</body>
+</html>

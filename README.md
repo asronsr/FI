@@ -17,6 +17,18 @@ Dashboard menampilkan ringkasan siklus: jumlah standar, temuan, tindak lanjut ya
 selesai, evaluasi terbaru, dan sebaran jenis temuan. Halaman detail setiap standar
 menampilkan jejak lengkap siklus PPEPP untuk standar tersebut.
 
+## Dokumen Penetapan
+
+Setiap standar memiliki bagian **Dokumen Penetapan** di halaman detailnya:
+
+- **Generate dokumen** — tombol «📄 Generate Dokumen» membuat dokumen standar mutu
+  siap cetak dari data yang diinput (kop instansi, tabel standar, kolom tanda tangan);
+  simpan sebagai PDF lewat dialog cetak browser.
+- **Unggah dokumen** — lampirkan dokumen penetapan yang dibuat di luar sistem
+  (SK, kebijakan, peraturan, SOP, manual mutu, formulir) dengan metadata jenis,
+  judul, nomor, dan tanggal. Format: pdf/doc/docx/xls/xlsx/ppt/pptx/jpg/png,
+  maksimum 16 MB. Berkas tersimpan di folder `unggahan/` dan dapat diunduh kembali.
+
 ## Konfigurasi Domain
 
 Menu **⚙️ Pengaturan** memungkinkan aplikasi dipakai lintas domain:

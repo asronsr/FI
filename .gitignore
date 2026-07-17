@@ -1,5 +1,6 @@
 __pycache__/
 *.pyc
 spmi.db
+unggahan/
 .venv/
 venv/

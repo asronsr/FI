@@ -2,12 +2,23 @@
 
 PPEPP: Penetapan - Pelaksanaan - Evaluasi - Pengendalian - Peningkatan.
 """
-from flask import Flask, render_template, request, redirect, url_for, flash
+import uuid
+from pathlib import Path
+
+from flask import (Flask, render_template, request, redirect, url_for, flash,
+                   send_from_directory)
+from werkzeug.utils import secure_filename
 
 from db import get_db, init_db
 
 app = Flask(__name__)
 app.secret_key = "spmi-ppepp-dev-key"
+app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # batas unggahan 16 MB
+
+UPLOAD_DIR = Path(__file__).parent / "unggahan"
+UPLOAD_DIR.mkdir(exist_ok=True)
+EKSTENSI_DIIZINKAN = {"pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx",
+                      "jpg", "jpeg", "png"}
 
 STATUS_STANDAR = ["Draf", "Ditetapkan", "Dalam Peningkatan", "Tidak Berlaku"]
 KESIMPULAN_EVALUASI = ["Melampaui Standar", "Mencapai Standar",
@@ -16,6 +27,8 @@ JENIS_TEMUAN = ["Sesuai", "Observasi", "KTS Minor", "KTS Mayor"]
 STATUS_PENGENDALIAN = ["Terbuka", "Dalam Proses", "Selesai"]
 JENIS_PENINGKATAN = ["Peningkatan Target", "Revisi Standar",
                      "Standar Baru", "Benchmarking"]
+JENIS_DOKUMEN = ["SK", "Kebijakan", "Peraturan", "SOP", "Manual Mutu",
+                 "Formulir", "Lainnya"]
 STATUS_PENINGKATAN = ["Diusulkan", "Dikaji", "Disetujui", "Diterapkan", "Ditolak"]
 
 # Profil siap pakai: mengisi daftar kategori standar dan metode evaluasi
@@ -174,10 +187,13 @@ def standar_detail(id):
            WHERE e.standar_id = ? ORDER BY p.batas_waktu""", (id,)).fetchall()
     peningkatan = conn.execute(
         "SELECT * FROM peningkatan WHERE standar_id = ? ORDER BY tanggal DESC", (id,)).fetchall()
+    dokumen = conn.execute(
+        "SELECT * FROM dokumen WHERE standar_id = ? ORDER BY dibuat_pada DESC", (id,)).fetchall()
     conn.close()
     return render_template("standar/detail.html", s=row, pelaksanaan=pelaksanaan,
                            evaluasi=evaluasi, pengendalian=pengendalian,
-                           peningkatan=peningkatan)
+                           peningkatan=peningkatan, dokumen=dokumen,
+                           jenis_dokumen=JENIS_DOKUMEN)
 
 
 @app.route("/standar/tambah", methods=["GET", "POST"])
@@ -225,11 +241,89 @@ def standar_form(id=None):
 @app.route("/standar/<int:id>/hapus", methods=["POST"])
 def standar_hapus(id):
     conn = get_db()
+    for d in conn.execute("SELECT nama_file FROM dokumen WHERE standar_id = ?", (id,)):
+        (UPLOAD_DIR / d["nama_file"]).unlink(missing_ok=True)
     conn.execute("DELETE FROM standar WHERE id = ?", (id,))
     conn.commit()
     conn.close()
     flash("Standar beserta seluruh riwayat siklusnya dihapus.", "sukses")
     return redirect(url_for("standar_list"))
+
+
+# ------------------------------------------------- Dokumen penetapan standar
+
+@app.route("/standar/<int:id>/cetak")
+def standar_cetak(id):
+    """Generate dokumen standar siap cetak dari data yang diinput."""
+    conn = get_db()
+    row = conn.execute("SELECT * FROM standar WHERE id = ?", (id,)).fetchone()
+    konfig = get_konfig(conn)
+    conn.close()
+    if row is None:
+        flash("Standar tidak ditemukan.", "error")
+        return redirect(url_for("standar_list"))
+    return render_template("standar/cetak.html", s=row, konfig=konfig)
+
+
+@app.route("/standar/<int:id>/dokumen/unggah", methods=["POST"])
+def dokumen_unggah(id):
+    conn = get_db()
+    row = conn.execute("SELECT id FROM standar WHERE id = ?", (id,)).fetchone()
+    if row is None:
+        conn.close()
+        flash("Standar tidak ditemukan.", "error")
+        return redirect(url_for("standar_list"))
+    berkas = request.files.get("berkas")
+    if berkas is None or berkas.filename == "":
+        conn.close()
+        flash("Pilih berkas yang akan diunggah.", "error")
+        return redirect(url_for("standar_detail", id=id))
+    nama_asli = secure_filename(berkas.filename)
+    ekstensi = nama_asli.rsplit(".", 1)[-1].lower() if "." in nama_asli else ""
+    if ekstensi not in EKSTENSI_DIIZINKAN:
+        conn.close()
+        flash("Jenis berkas tidak diizinkan. Gunakan: "
+              + ", ".join(sorted(EKSTENSI_DIIZINKAN)) + ".", "error")
+        return redirect(url_for("standar_detail", id=id))
+    nama_file = f"{id}-{uuid.uuid4().hex}.{ekstensi}"
+    berkas.save(UPLOAD_DIR / nama_file)
+    judul = request.form.get("judul", "").strip() or nama_asli.rsplit(".", 1)[0]
+    conn.execute(
+        """INSERT INTO dokumen (standar_id, jenis, judul, nomor, tanggal,
+           nama_file, nama_asli) VALUES (?,?,?,?,?,?,?)""",
+        (id, request.form.get("jenis", "Lainnya"), judul,
+         request.form.get("nomor", "").strip(),
+         request.form.get("tanggal") or None, nama_file, nama_asli))
+    conn.commit()
+    conn.close()
+    flash("Dokumen berhasil diunggah.", "sukses")
+    return redirect(url_for("standar_detail", id=id))
+
+
+@app.route("/dokumen/<int:id>/unduh")
+def dokumen_unduh(id):
+    conn = get_db()
+    d = conn.execute("SELECT * FROM dokumen WHERE id = ?", (id,)).fetchone()
+    conn.close()
+    if d is None:
+        flash("Dokumen tidak ditemukan.", "error")
+        return redirect(url_for("standar_list"))
+    return send_from_directory(UPLOAD_DIR, d["nama_file"], as_attachment=True,
+                               download_name=d["nama_asli"])
+
+
+@app.route("/dokumen/<int:id>/hapus", methods=["POST"])
+def dokumen_hapus(id):
+    conn = get_db()
+    d = conn.execute("SELECT * FROM dokumen WHERE id = ?", (id,)).fetchone()
+    if d is not None:
+        (UPLOAD_DIR / d["nama_file"]).unlink(missing_ok=True)
+        conn.execute("DELETE FROM dokumen WHERE id = ?", (id,))
+        conn.commit()
+        flash("Dokumen dihapus.", "sukses")
+    conn.close()
+    return redirect(url_for("standar_detail", id=d["standar_id"])
+                    if d else url_for("standar_list"))
 
 
 # ------------------------------------------------------------ 2. Pelaksanaan
