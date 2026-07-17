@@ -7,7 +7,7 @@ PDCA/kaizen pada ISO 9001.
 
 | Tahap | Modul | Fungsi |
 |---|---|---|
-| **P**enetapan | Standar Mutu | Menetapkan standar (pernyataan, indikator, target, penanggung jawab, status penetapan) |
+| **P**enetapan | Standar Mutu | Menetapkan standar (pernyataan, indikator, target, penanggung jawab, status penetapan) serta mengunggah dokumen penetapan yang dibuat di luar sistem (SK, kebijakan, peraturan, SOP) |
 | **P**elaksanaan | Pelaksanaan | Mencatat kegiatan pemenuhan standar beserta unit pelaksana, capaian, dan bukti |
 | **E**valuasi | Evaluasi | Mencatat hasil AMI / monev / survei: capaian vs target, kesimpulan, dan jenis temuan (Sesuai, Observasi, KTS Minor, KTS Mayor) |
 | **P**engendalian | Pengendalian | Tindakan korektif atas temuan: akar masalah, RTL, penanggung jawab, batas waktu, status |
@@ -31,6 +31,15 @@ Menu **⚙️ Pengaturan** memungkinkan aplikasi dipakai lintas domain:
 
 Pengaturan disimpan di basis data, sehingga bertahan saat aplikasi dimulai ulang. Data
 yang sudah tercatat dengan kategori/metode lama tetap tersimpan dan tampil di daftar.
+
+## Dokumen Penetapan
+
+Standar yang penetapannya sudah dituangkan dalam dokumen resmi di luar sistem — SK,
+kebijakan, peraturan, maupun SOP — dapat diarsipkan lewat halaman detail standar:
+unggah berkasnya (pdf, doc/x, odt, xls/x, ppt/x, jpg, png; maks. 16 MB) beserta jenis,
+nomor, judul, dan keterangannya. Berkas tersimpan di folder `unggahan/` dan dapat
+diunduh kembali dengan nama aslinya; menghapus standar juga membersihkan berkas
+dokumennya.
 
 ## Teknologi
 
@@ -57,6 +66,7 @@ app.py            # Rute Flask untuk kelima modul PPEPP + dashboard
 db.py             # Skema SQLite + data contoh
 templates/        # Tampilan Jinja2 per modul
 static/style.css  # Gaya tampilan
+unggahan/         # Berkas dokumen penetapan yang diunggah (dibuat otomatis)
 ```
 
 ## Catatan Pengembangan Lanjutan

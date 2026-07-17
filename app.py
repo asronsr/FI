@@ -2,12 +2,26 @@
 
 PPEPP: Penetapan - Pelaksanaan - Evaluasi - Pengendalian - Peningkatan.
 """
-from flask import Flask, render_template, request, redirect, url_for, flash
+import uuid
+from pathlib import Path
+
+from flask import (Flask, render_template, request, redirect, url_for,
+                   flash, send_from_directory, abort)
+from werkzeug.utils import secure_filename
 
 from db import get_db, init_db
 
 app = Flask(__name__)
 app.secret_key = "spmi-ppepp-dev-key"
+app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # batas unggahan 16 MB
+
+# Dokumen penetapan yang dibuat di luar sistem (SK, kebijakan, dsb.) dapat
+# diunggah dan disimpan di folder ini, di luar static/ agar tidak ikut terlayani
+# tanpa melalui rute unduhan.
+FOLDER_UNGGAHAN = Path(__file__).parent / "unggahan"
+EKSTENSI_DIIZINKAN = {"pdf", "doc", "docx", "odt", "xls", "xlsx",
+                      "ppt", "pptx", "jpg", "jpeg", "png"}
+JENIS_DOKUMEN = ["SK", "Kebijakan", "Peraturan", "SOP", "Lainnya"]
 
 STATUS_STANDAR = ["Draf", "Ditetapkan", "Dalam Peningkatan", "Tidak Berlaku"]
 KESIMPULAN_EVALUASI = ["Melampaui Standar", "Mencapai Standar",
@@ -145,11 +159,14 @@ def dashboard():
 def standar_list():
     conn = get_db()
     kategori = request.args.get("kategori", "")
+    sql = """SELECT s.*, (SELECT COUNT(*) FROM dokumen_penetapan d
+                          WHERE d.standar_id = s.id) AS jumlah_dokumen
+             FROM standar s"""
     if kategori:
         rows = conn.execute(
-            "SELECT * FROM standar WHERE kategori = ? ORDER BY kode", (kategori,)).fetchall()
+            sql + " WHERE s.kategori = ? ORDER BY s.kode", (kategori,)).fetchall()
     else:
-        rows = conn.execute("SELECT * FROM standar ORDER BY kode").fetchall()
+        rows = conn.execute(sql + " ORDER BY s.kode").fetchall()
     kategori_list = get_konfig(conn)["kategori_standar"]
     conn.close()
     return render_template("standar/list.html", rows=rows,
@@ -174,10 +191,14 @@ def standar_detail(id):
            WHERE e.standar_id = ? ORDER BY p.batas_waktu""", (id,)).fetchall()
     peningkatan = conn.execute(
         "SELECT * FROM peningkatan WHERE standar_id = ? ORDER BY tanggal DESC", (id,)).fetchall()
+    dokumen = conn.execute(
+        "SELECT * FROM dokumen_penetapan WHERE standar_id = ? ORDER BY diunggah_pada DESC",
+        (id,)).fetchall()
     conn.close()
     return render_template("standar/detail.html", s=row, pelaksanaan=pelaksanaan,
                            evaluasi=evaluasi, pengendalian=pengendalian,
-                           peningkatan=peningkatan)
+                           peningkatan=peningkatan, dokumen=dokumen,
+                           jenis_dokumen=JENIS_DOKUMEN)
 
 
 @app.route("/standar/tambah", methods=["GET", "POST"])
@@ -225,11 +246,81 @@ def standar_form(id=None):
 @app.route("/standar/<int:id>/hapus", methods=["POST"])
 def standar_hapus(id):
     conn = get_db()
+    berkas = conn.execute(
+        "SELECT nama_file FROM dokumen_penetapan WHERE standar_id = ?", (id,)).fetchall()
     conn.execute("DELETE FROM standar WHERE id = ?", (id,))
     conn.commit()
     conn.close()
+    for b in berkas:
+        (FOLDER_UNGGAHAN / b["nama_file"]).unlink(missing_ok=True)
     flash("Standar beserta seluruh riwayat siklusnya dihapus.", "sukses")
     return redirect(url_for("standar_list"))
+
+
+# ----------------------------------------------- Dokumen penetapan (unggahan)
+
+@app.route("/standar/<int:id>/dokumen", methods=["POST"])
+def dokumen_unggah(id):
+    """Unggah dokumen penetapan (SK/kebijakan/peraturan/SOP) yang dibuat di luar sistem."""
+    conn = get_db()
+    if conn.execute("SELECT id FROM standar WHERE id = ?", (id,)).fetchone() is None:
+        conn.close()
+        flash("Standar tidak ditemukan.", "error")
+        return redirect(url_for("standar_list"))
+    berkas = request.files.get("berkas")
+    if berkas is None or not berkas.filename:
+        conn.close()
+        flash("Pilih berkas yang akan diunggah.", "error")
+        return redirect(url_for("standar_detail", id=id))
+    ekstensi = berkas.filename.rsplit(".", 1)[-1].lower() if "." in berkas.filename else ""
+    if ekstensi not in EKSTENSI_DIIZINKAN:
+        conn.close()
+        flash("Jenis berkas tidak diizinkan. Gunakan: "
+              + ", ".join(sorted(EKSTENSI_DIIZINKAN)) + ".", "error")
+        return redirect(url_for("standar_detail", id=id))
+    f = request.form
+    jenis = f.get("jenis") if f.get("jenis") in JENIS_DOKUMEN else "Lainnya"
+    judul = f.get("judul", "").strip() or berkas.filename
+    nama_aman = secure_filename(berkas.filename) or f"dokumen.{ekstensi}"
+    nama_file = f"{uuid.uuid4().hex[:8]}_{nama_aman}"
+    FOLDER_UNGGAHAN.mkdir(exist_ok=True)
+    berkas.save(FOLDER_UNGGAHAN / nama_file)
+    conn.execute(
+        """INSERT INTO dokumen_penetapan (standar_id, jenis, nomor, judul,
+           nama_file, nama_asli, keterangan) VALUES (?,?,?,?,?,?,?)""",
+        (id, jenis, f.get("nomor", "").strip(), judul, nama_file,
+         berkas.filename, f.get("keterangan", "").strip()))
+    conn.commit()
+    conn.close()
+    flash(f"Dokumen «{judul}» berhasil diunggah.", "sukses")
+    return redirect(url_for("standar_detail", id=id))
+
+
+@app.route("/dokumen/<int:id>/unduh")
+def dokumen_unduh(id):
+    conn = get_db()
+    d = conn.execute("SELECT * FROM dokumen_penetapan WHERE id = ?", (id,)).fetchone()
+    conn.close()
+    if d is None:
+        abort(404)
+    return send_from_directory(FOLDER_UNGGAHAN, d["nama_file"],
+                               as_attachment=True, download_name=d["nama_asli"])
+
+
+@app.route("/dokumen/<int:id>/hapus", methods=["POST"])
+def dokumen_hapus(id):
+    conn = get_db()
+    d = conn.execute("SELECT * FROM dokumen_penetapan WHERE id = ?", (id,)).fetchone()
+    if d is None:
+        conn.close()
+        flash("Dokumen tidak ditemukan.", "error")
+        return redirect(url_for("standar_list"))
+    conn.execute("DELETE FROM dokumen_penetapan WHERE id = ?", (id,))
+    conn.commit()
+    conn.close()
+    (FOLDER_UNGGAHAN / d["nama_file"]).unlink(missing_ok=True)
+    flash(f"Dokumen «{d['judul']}» dihapus.", "sukses")
+    return redirect(url_for("standar_detail", id=d["standar_id"]))
 
 
 # ------------------------------------------------------------ 2. Pelaksanaan

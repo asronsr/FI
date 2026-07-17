@@ -21,6 +21,71 @@
   </dl>
 </div>
 
+<h2>📄 Dokumen Penetapan ({{ dokumen|length }})</h2>
+<p class="deskripsi">Dokumen penetapan yang sudah ada di luar sistem — SK, kebijakan,
+peraturan, atau SOP — dapat diunggah di sini sebagai arsip resmi standar.</p>
+<div class="tabel-bungkus">
+  <table>
+    <tr><th>Jenis</th><th>Nomor</th><th>Judul</th><th>Berkas</th><th>Diunggah</th><th></th></tr>
+    {% for d in dokumen %}
+    <tr>
+      <td><span class="badge badge-abu">{{ d['jenis'] }}</span></td>
+      <td>{{ d['nomor'] or '—' }}</td>
+      <td>{{ d['judul'] }}
+        {% if d['keterangan'] %}<div class="sub">{{ d['keterangan'] }}</div>{% endif %}</td>
+      <td>{{ d['nama_asli'] }}</td>
+      <td>{{ d['diunggah_pada'] }}</td>
+      <td>
+        <a class="btn btn-kecil" href="{{ url_for('dokumen_unduh', id=d['id']) }}">Unduh</a>
+        <form class="inline" method="post" action="{{ url_for('dokumen_hapus', id=d['id']) }}"
+              onsubmit="return confirm('Hapus dokumen ini?')">
+          <button class="btn btn-kecil btn-merah">Hapus</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="6" class="kosong">Belum ada dokumen penetapan yang diunggah.</td></tr>
+    {% endfor %}
+  </table>
+</div>
+
+<div class="kartu">
+  <form class="formulir" method="post" enctype="multipart/form-data"
+        action="{{ url_for('dokumen_unggah', id=s['id']) }}">
+    <h3>Unggah Dokumen</h3>
+    <div class="dua-kolom">
+      <div class="medan">
+        <label for="jenis">Jenis Dokumen *</label>
+        <select id="jenis" name="jenis">
+          {% for j in jenis_dokumen %}
+          <option>{{ j }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="medan">
+        <label for="nomor">Nomor Dokumen</label>
+        <input id="nomor" name="nomor" placeholder="mis. 12/SK/REK/2026">
+      </div>
+    </div>
+    <div class="medan">
+      <label for="judul">Judul Dokumen</label>
+      <input id="judul" name="judul" placeholder="mis. SK Penetapan Standar Kompetensi Lulusan (kosongkan = nama berkas)">
+    </div>
+    <div class="dua-kolom">
+      <div class="medan">
+        <label for="berkas">Berkas * <span class="sub">(pdf, doc/x, odt, xls/x, ppt/x, jpg, png — maks. 16 MB)</span></label>
+        <input type="file" id="berkas" name="berkas" required
+               accept=".pdf,.doc,.docx,.odt,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png">
+      </div>
+      <div class="medan">
+        <label for="keterangan">Keterangan</label>
+        <input id="keterangan" name="keterangan" placeholder="mis. Ditetapkan oleh Senat, berlaku sejak 2026">
+      </div>
+    </div>
+    <button class="btn" type="submit">Unggah</button>
+  </form>
+</div>
+
 <h2>Riwayat Siklus PPEPP untuk Standar Ini</h2>
 
 <h2>📋 Pelaksanaan ({{ pelaksanaan|length }})</h2>

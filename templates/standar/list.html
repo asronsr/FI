@@ -19,7 +19,8 @@
     <tr><th>Kode</th><th>Nama Standar</th><th>Kategori</th><th>Indikator &amp; Target</th><th>Status</th><th></th></tr>
     {% for s in rows %}
     <tr>
-      <td><a href="{{ url_for('standar_detail', id=s['id']) }}">{{ s['kode'] }}</a></td>
+      <td><a href="{{ url_for('standar_detail', id=s['id']) }}">{{ s['kode'] }}</a>
+        {% if s['jumlah_dokumen'] %}<div class="sub">📄 {{ s['jumlah_dokumen'] }} dokumen</div>{% endif %}</td>
       <td>{{ s['nama'] }}<div class="sub">PJ: {{ s['penanggung_jawab'] or '—' }}</div></td>
       <td>{{ s['kategori'] }}</td>
       <td>{{ s['indikator'] }}<div class="sub">Target: {{ s['target'] }}</div></td>
